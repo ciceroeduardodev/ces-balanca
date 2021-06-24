@@ -113,6 +113,8 @@ namespace CES.APP.XGP.Classes
             if (MP2032.IniciaPorta(ConfigurationManager.AppSettings["PRINT_Port"].ToString()) == 0)
                 return false;
 
+            MP2032.AjustaLarguraPapel(Convert.ToInt32(ConfigurationManager.AppSettings["PRINT_Width"]));
+
             return true;
         }
 
@@ -120,7 +122,7 @@ namespace CES.APP.XGP.Classes
         {
             int iDiff;
             string sText;
-            iDiff = 50 - (pTextLeft.Length + pTextRight.Length);
+            iDiff = Convert.ToInt32(ConfigurationManager.AppSettings["PRINT_CharMax"]) - (pTextLeft.Length + pTextRight.Length);
             sText = string.Format("{0}{1}{2}", pTextLeft, new string(' ', iDiff), pTextRight);
             if (pTitle)
                 MP2032.FormataTX(string.Format("{0}\r\n", sText), 2, 0, 0, 0, 1);
@@ -136,12 +138,10 @@ namespace CES.APP.XGP.Classes
             int iDefaultLen;
             string sText;
 
-
-
             if (pTitle)
-                iDefaultLen = 25;
+                iDefaultLen = Convert.ToInt32(ConfigurationManager.AppSettings["PRINT_CharMax"]) / 2;
             else
-                iDefaultLen = 50;
+                iDefaultLen = Convert.ToInt32(ConfigurationManager.AppSettings["PRINT_CharMax"]);
 
             if (pCenter)
             {
@@ -158,11 +158,13 @@ namespace CES.APP.XGP.Classes
                 MP2032.FormataTX(string.Format("{0}\r\n", sText), 2, 0, 0, 1, 1);
             else
                 MP2032.FormataTX(string.Format("{0}\r\n", sText), 2, 0, 0, 0, 0);
+
+            
         }
 
         private static void Print_Line()
         {
-            MP2032.FormataTX(string.Format("{0}\r\n", new string('_', 50)), 2, 0, 0, 0, 0);
+            MP2032.FormataTX(string.Format("{0}\r\n", new string('_', Convert.ToInt32(ConfigurationManager.AppSettings["PRINT_CharMax"]))), 2, 0, 0, 0, 0);
         }
 
         private static void Print_NewLine()
