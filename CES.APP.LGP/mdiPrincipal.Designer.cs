@@ -297,8 +297,7 @@
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "mdiPrincipal";
             this.Text = "XGP - Sistema de Pesagem";
-            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.mdiPrincipal_FormClosing);
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;            
             this.Load += new System.EventHandler(this.mdiPrincipal_Load);
             this.Shown += new System.EventHandler(this.mdiPrincipal_Shown);
             this.toolStrip.ResumeLayout(false);

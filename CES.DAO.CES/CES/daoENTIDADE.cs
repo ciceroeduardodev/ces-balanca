@@ -77,6 +77,24 @@ namespace CES.DAO.CES.CES
             }
             return lstENTIDADE;
         }
+
+        public List<modENTIDADE> SelecionarTodos()
+        {
+            string sProcedure = "ces.prQ_ENTs";
+            Parametro oParametros = new Parametro();
+            List<modENTIDADE> lstENTIDADE = new List<modENTIDADE>();
+            Conexao oConexao = new Conexao();
+            DataTable dtENTIDADE = oConexao.Select(sProcedure, ref oParametros).GetDataTable;
+
+            if (dtENTIDADE != null)
+            {
+                foreach (DataRow oItem in dtENTIDADE.Rows)
+                {
+                    lstENTIDADE.Add(GetItem(oItem));
+                }
+            }
+            return lstENTIDADE;
+        }
         public List<modENTIDADE> Selecionar(modENTIDADE pENTIDADE)
         {
             string sProcedure = "ces.prQ_ENT";

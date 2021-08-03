@@ -46,6 +46,7 @@
     <Compile Include="CES\modPRODUTO.cs" />
     <Compile Include="CES\modUSUARIO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Public\modSync.cs" />
     <Compile Include="Public\PostReturn.cs" />
     <Compile Include="XGP\modBALANCA.cs" />
     <Compile Include="XGP\modENTIDADE.cs" />

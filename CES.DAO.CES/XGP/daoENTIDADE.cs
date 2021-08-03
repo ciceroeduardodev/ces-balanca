@@ -88,14 +88,13 @@ namespace CES.DAO.CES.XGP
             }
             return lstENTIDADE;
         }
-        public List<modENTIDADE> Selecionar(modENTIDADE pENTIDADE)
+        public modENTIDADE Selecionar(modENTIDADE pENTIDADE)
         {
             string sProcedure = "xgp.prQ_ENT";
             List<modENTIDADE> lstENTIDADE = new List<modENTIDADE>();
             Parametro oParametros = new Parametro();
-            oParametros.Add("@CLI_Id", pENTIDADE.CLI_Id);
-            oParametros.Add("@ENT_Id", pENTIDADE.ENT.ENT_Id);
-
+            oParametros.Add("@ENT_CPF_CNPJ", pENTIDADE.ENT.ENT_CPF_CNPJ);
+            
             Conexao oConexao = new Conexao();
             DataTable dtENTIDADE = oConexao.Select(sProcedure,ref oParametros).GetDataTable;
 
@@ -103,11 +102,34 @@ namespace CES.DAO.CES.XGP
             {
                 foreach (DataRow oItem in dtENTIDADE.Rows)
                 {
-                    lstENTIDADE.Add(GetItem(oItem));
+                    return GetItem(oItem);
                 }
             }
-            return lstENTIDADE;
+            return null;
         }
+
+
+        public bool Existe(modENTIDADE pENTIDADE)
+        {
+            string sProcedure = "xgp.prQ_ENT";
+            List<modENTIDADE> lstENTIDADE = new List<modENTIDADE>();
+            Parametro oParametros = new Parametro();
+            oParametros.Add("@ENT_CPF_CNPJ", pENTIDADE.ENT.ENT_CPF_CNPJ);
+
+            Conexao oConexao = new Conexao();
+            DataTable dtENTIDADE = oConexao.Select(sProcedure, ref oParametros).GetDataTable;
+
+            if (dtENTIDADE != null)
+            {
+                foreach (DataRow oItem in dtENTIDADE.Rows)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
         private modENTIDADE GetItem(DataRow pItem)
         {
             modENTIDADE modENTIDADE = new modENTIDADE();

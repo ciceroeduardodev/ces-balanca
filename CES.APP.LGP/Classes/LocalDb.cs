@@ -205,14 +205,17 @@ namespace CES.APP.XGP.Classes
         {
             DAO.CES.XGP.daoENTIDADE daoENT = new DAO.CES.XGP.daoENTIDADE();
 
-            MOD.CES.XGP.modENTIDADE modENT; 
+            MOD.CES.XGP.modENTIDADE modENT;
 
-
-
-            if (pENT.ENT.ENT_Id == 0)
+            if (!daoENT.Existe(pENT))
                 modENT = daoENT.Inserir(pENT);
             else
+            {
+                modENT = daoENT.Selecionar(pENT);
+                pENT.CLI_Id = modENT.CLI_Id;
+                pENT.ENT.ENT_Id = modENT.ENT.ENT_Id;
                 modENT = daoENT.Alterar(pENT);
+            }
 
             pReturn.Status = true;
 

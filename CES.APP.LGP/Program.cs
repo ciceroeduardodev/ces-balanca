@@ -25,7 +25,7 @@ namespace CES.APP.XGP
             {
                 //System.Diagnostics.Debug.WriteLine(General.GetKey());
 
-                Mail.SendError( "Teste");
+                //Mail.SendError( "Teste");
 
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
@@ -36,6 +36,9 @@ namespace CES.APP.XGP
                 }
                 else
                 {
+
+                    General.ExecuteScript();
+
                     Application.Run(new mdiPrincipal());
                 }
             }

@@ -2,6 +2,7 @@
 using CES.APP.XGP.Interfaces;
 using CES.MOD.CES.XGP;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Drawing;
 using System.Threading;
@@ -32,7 +33,10 @@ namespace CES.APP.XGP
         {
             try
             {
-                tmConexao.Interval = 5000;
+                tmConexao.Interval = Convert.ToInt32(ConfigurationManager.AppSettings["SyncTime"].ToString());
+                                
+                if (Convert.ToBoolean(ConfigurationManager.AppSettings["SIS_Local"].ToString()))
+                    return;
 
                 if (_InternetConnection)
                 {
@@ -62,12 +66,7 @@ namespace CES.APP.XGP
             Cursor.Current = Cursors.WaitCursor;
             lblConectado.Visible = false;
             lblNaoConectado.Visible = false;
-
             Habilitar_Menu();
-
-            _InternetConnection = General.Ping();
-            General.Sincronizar(_InternetConnection);
-
             tmConexao.Enabled = true;
             Cursor.Current = Cursors.Default;
         }
@@ -138,18 +137,13 @@ namespace CES.APP.XGP
         {
             _InternetConnection = General.Ping();
 
-            if (_InternetConnection && !lblConectado.Visible)
-                General.Sincronizar(_InternetConnection);
+            if (_InternetConnection)
+                General.Sincronizar();
         }
-
-        private void mdiPrincipal_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            General.Sincronizar(_InternetConnection);
-        }
-
+      
         private void cmdConfig_Click(object sender, EventArgs e)
         {
-            if(!General.Autenticar())
+            if (!General.Autenticar())
             {
                 return;
             }
@@ -170,7 +164,7 @@ namespace CES.APP.XGP
                 Program._BAL = oAction.GetBalanca(ConfigurationManager.AppSettings["BAL_Token"].ToString());
 
                 if (Program._BAL.BAL_Id == 0)
-                {                  
+                {
                     tmConexao.Enabled = false;
                     frmCadastroBalanca oCadastroBalanca = new frmCadastroBalanca(ConfigurationManager.AppSettings["BAL_Token"].ToString());
                     oCadastroBalanca.ShowDialog();
@@ -193,12 +187,16 @@ namespace CES.APP.XGP
 
         private void Habilitar_Menu()
         {
+            string sKey = string.Format("SQL_{0}", DateTime.Now.ToString("yyyyMMdd"));
+
+            List<string> sKeys = new List<string>(ConfigurationManager.AppSettings.AllKeys);
+
             try
             {
-                if (ConfigurationManager.AppSettings[string.Format("SQL_{0}", DateTime.Now.ToString("yyyyMMdd"))].ToString()=="")
-                {
+                if (sKeys.Contains(sKey))
                     mnuSQL.Visible = true;
-                }
+                else
+                    mnuSQL.Visible = false;
 
             }
             catch (Exception pEx)

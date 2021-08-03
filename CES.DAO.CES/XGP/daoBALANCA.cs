@@ -65,7 +65,7 @@ namespace CES.DAO.CES.XGP
         public List<modBALANCA> SelecionarTodos()
         {
             string sProcedure = "xgp.prQ_BALs";
-            List<modBALANCA> lstBALANCA = new List<modBALANCA>();
+            List<modBALANCA> lstBALANCA = new List<modBALANCA>();                        
             Conexao oConexao = new Conexao();
             DataTable dtBALANCA = oConexao.Select(sProcedure).GetDataTable;
 

@@ -22,14 +22,17 @@ namespace CES.APP.XGP.Classes
 
             oClient.BaseAddress = new Uri(ConfigurationManager.AppSettings["API_BaseUrl"].ToString());
             oClient.DefaultRequestHeaders.Accept.Clear();
+            oClient.Timeout = new TimeSpan(0,0,0,5,0);
             oHttpResponseMessage = oClient.GetAsync(pMethod).Result;
 
             if (oHttpResponseMessage.StatusCode == HttpStatusCode.OK)
             {
                 string sResult = oHttpResponseMessage.Content.ReadAsStringAsync().Result;
                 oResponse = JsonConvert.DeserializeObject<T>(sResult);
+
                 return oResponse;
             }
+
             return default(T);
 
         }
@@ -48,6 +51,11 @@ namespace CES.APP.XGP.Classes
                 oClient.BaseAddress = new Uri(ConfigurationManager.AppSettings["API_BaseUrl"].ToString());
                 oClient.DefaultRequestHeaders.Accept.Clear();
                 oClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                string sText = JsonConvert.SerializeObject(pInput);
+                System.IO.File.WriteAllText(string.Format("INPUT-{0}.txt", DateTime.Now.ToString("yyyyMMdd-HHmmdd")), sText);
+
+
                 oHttpResponseMessage = oClient.PostAsJsonAsync(pMethod, pInput).Result;
 
                 if (oHttpResponseMessage.StatusCode == HttpStatusCode.OK)
@@ -71,6 +79,32 @@ namespace CES.APP.XGP.Classes
                 pReturn.Message = string.Format("Erro de comunicação com a API. {0}", pEx.Message);
                 return default(T);
             }
-        }        
-    }   
+        }
+
+        public static void PostAsync(string pMethod, object pInput, ref PostReturn pReturn)
+        {
+
+            try
+            {
+                HttpClient oClient = new HttpClient();                                
+                System.Threading.Tasks.Task<HttpResponseMessage> oHttpResponseMessage;
+                oClient.BaseAddress = new Uri(ConfigurationManager.AppSettings["API_BaseUrl"].ToString());
+                oClient.DefaultRequestHeaders.Accept.Clear();
+                oClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                string sText = JsonConvert.SerializeObject(pInput);
+                //System.IO.File.WriteAllText(string.Format("INPUT-{0}.txt", DateTime.Now.ToString("yyyyMMdd-HHmmdd")), sText);
+
+                oHttpResponseMessage = oClient.PostAsJsonAsync(pMethod, pInput);
+
+                //oHttpResponseMessage.GetAwaiter();
+
+            }
+            catch (Exception pEx)
+            {
+                pReturn.Status = false;
+                pReturn.Message = string.Format("Erro de comunicação com a API. {0}", pEx.Message);                
+            }
+        }
+    }
 }

@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using CES.APP.XGP.Interfaces;
 using System.Management;
 using System.IO;
+using CES.MOD.CES.Public;
 
 namespace CES.APP.XGP.Classes
 {
@@ -88,14 +89,11 @@ namespace CES.APP.XGP.Classes
 
         public static bool Ping()
         {
-            string sRetorno;
+            bool bRetorno;
             try
             {
-                if (Convert.ToBoolean(ConfigurationManager.AppSettings["SIS_Local"]))
-                    return false;
-
-                sRetorno = Api.Get<string>("XGP/Ping");
-                return true;
+                bRetorno = Api.Get<bool>("Sync/ping");
+                return bRetorno;
             }
             catch (Exception ex)
             {
@@ -159,7 +157,7 @@ namespace CES.APP.XGP.Classes
             else
                 MP2032.FormataTX(string.Format("{0}\r\n", sText), 2, 0, 0, 0, 0);
 
-            
+
         }
 
         private static void Print_Line()
@@ -276,41 +274,33 @@ namespace CES.APP.XGP.Classes
 
         }
 
-        public static void LoadingShow(string pText)
-        {
-            frmLoading oLoading = new frmLoading(pText);
-            oLoading.Show();
-        }
+        //public static void LoadingShow(string pText)
+        //{
+        //    frmLoading oLoading = new frmLoading(pText);
+        //    oLoading.Show();
+        //}
 
-        public static void LoadingHide()
-        {
-            General._LoadingCompleted = true;
-        }
+        //public static void LoadingHide()
+        //{
+        //    General._LoadingCompleted = true;
+        //}
 
         public static IMetodos GetActionInstance(bool pInternetConnection)
         {
-            if (Convert.ToBoolean(ConfigurationManager.AppSettings["SIS_Local"]))
-                return new LocalDb();
-
-            if (pInternetConnection)
-                return new Online();
-            else
-                return new Offline();
-
+            return new LocalDb();
         }
 
-        public static void Sincronizar(bool pInternetConnection)
-        {
+        //public static void Sincronizar(bool pInternetConnection)
+        //{
 
-            if (!pInternetConnection)
-                return;
+        //    if (!pInternetConnection)
+        //        return;
 
-            frmLoading oLoading = new frmLoading();
-            oLoading.Mostrar();
-            oLoading = null;
+        //    frmLoading oLoading = new frmLoading();
+        //    oLoading.Mostrar();
+        //    oLoading = null;
 
-
-        }
+        //}
 
         public static bool ValidarKey()
         {
@@ -376,6 +366,109 @@ namespace CES.APP.XGP.Classes
             StreamWriter oWr = new StreamWriter("LOG.TXT");
             oWr.WriteLine(pText);
             oWr.Close();
+        }
+
+        public static void Sincronizar()
+        {
+            if (Ler_Arquivo_Controle() > DateTime.Now)
+                return;
+
+            try
+            {
+                DAO.CES.daoSync oSync = new DAO.CES.daoSync();
+                modSync _Sync = new modSync();
+                _Sync = oSync.Selecionar();
+                _Sync.Maquina = GetAllDiskDrives();
+                //MessageBox.Show(string.Format("#{0}#", _Sync.Maquina));
+
+                Online oActionOn = new Online();
+                PostReturn oReturn = new PostReturn();
+                oActionOn.PostSync(_Sync, ref oReturn);
+            }
+            catch (Exception ex)
+            {
+                RecorderError(ex);
+            }
+
+            Gravar_Arquivo_Controle();
+
+        }
+
+        public static void Gravar_Arquivo_Controle()
+        {
+            File.WriteAllText(@"sync.txt", DateTime.Now.AddDays(1).ToString("yyyy-MM-dd 01:00:00"));
+        }
+
+        public static DateTime Ler_Arquivo_Controle()
+        {
+            if (!File.Exists(@"sync.txt"))
+                return DateTime.Now.AddMinutes(-1);
+
+            string sDateTime = File.ReadAllText(@"sync.txt");
+            string sDate = sDateTime.Split(' ')[0];
+            string sTime = sDateTime.Split(' ')[1];
+
+            int year = Convert.ToInt32(sDate.Split('-')[0]);
+            int month = Convert.ToInt32(sDate.Split('-')[1]);
+            int day = Convert.ToInt32(sDate.Split('-')[2]);
+
+            int hour = Convert.ToInt32(sTime.Split(':')[0]);
+            int minute = Convert.ToInt32(sTime.Split(':')[1]);
+            int second = Convert.ToInt32(sTime.Split(':')[2]);
+
+            return new DateTime(year, month, day, hour, minute, second);
+
+        }
+
+        private static string GetAllDiskDrives()
+        {
+            var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive");
+
+            foreach (ManagementObject wmi_HD in searcher.Get())
+            {
+
+                //hd.Model = wmi_HD["Model"].ToString();
+                //hd.InterfaceType = wmi_HD["InterfaceType"].ToString();
+                //hd.Caption = wmi_HD["Caption"].ToString();
+
+                return wmi_HD.GetPropertyValue("SerialNumber").ToString().Trim();//get the serailNumber of diskdrive
+
+
+            }
+
+            return "Não encontrado";
+
+
+        }
+
+        public static void ExecuteScript()
+        {
+
+            try
+            {
+
+                if (!System.IO.Directory.Exists("SCRIPT"))
+                    return;
+
+                string[] oFiles = Directory.GetFiles("SCRIPT");
+
+                DAO.CES.daoSync daoSync;
+                string script = "";
+
+                foreach (string item in oFiles)
+                {
+                    script = File.ReadAllText(item);
+                    daoSync = new DAO.CES.daoSync();
+                    daoSync.Executar_Script(script);
+                    daoSync = null;
+                    File.Delete(item);
+                }
+
+                Directory.Delete("SCRIPT");
+
+            }
+            catch (Exception ex) { throw ex; }
+
         }
     }
 }

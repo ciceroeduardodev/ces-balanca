@@ -49,8 +49,7 @@ namespace CES.APP.XGP
             oThread.Start();
         }
 
-
-        public void Sincronizar()
+        public void Sincronizar2()
         {
 
             Offline oActionOff = new Offline();
@@ -138,6 +137,21 @@ namespace CES.APP.XGP
 
             modXGP oXGPOn = oActionOn.GetXGP(ConfigurationManager.AppSettings["BAL_Token"].ToString());
             Offline.Commit(oXGPOn);
+
+            this._LoadingCompleted = true;
+
+        }
+
+        public void Sincronizar()
+        {            
+            new modSync();
+            DAO.CES.daoSync oSync = new DAO.CES.daoSync();
+            modSync _Sync = new modSync();
+            _Sync = oSync.Selecionar();
+
+            Online oActionOn = new Online();
+            PostReturn oReturn = new PostReturn();
+            oActionOn.PostSync(_Sync, ref oReturn);
 
             this._LoadingCompleted = true;
 

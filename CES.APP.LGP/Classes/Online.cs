@@ -59,12 +59,12 @@ namespace CES.APP.XGP.Classes
 
         public string GetTicket(int pCLI_Id, int pBAL_Id)
         {
-            return Api.Get<string>(string.Format("XGP/GetTicket?pCLI_Id={0}&pBAL_Id={1}", pCLI_Id, pBAL_Id)); 
+            return Api.Get<string>(string.Format("XGP/GetTicket?pCLI_Id={0}&pBAL_Id={1}", pCLI_Id, pBAL_Id));
         }
 
         public modXGP GetXGP(string pBAL_Token)
         {
-            return Api.Get<modXGP>(string.Format("XGP/GetXGP?pBAL_Token={0}", pBAL_Token));            
+            return Api.Get<modXGP>(string.Format("XGP/GetXGP?pBAL_Token={0}", pBAL_Token));
         }
 
         public modBALANCA PostConfigInicial(modCLIENTE pCLI, modBALANCA pBAL, ref PostReturn pReturn)
@@ -89,7 +89,12 @@ namespace CES.APP.XGP.Classes
 
         public modMOVIMENTO PostSaida(modMOVIMENTO pMOV, ref PostReturn pReturn)
         {
-            return Api.Post<modMOVIMENTO>("XGP/PostSaida", pMOV, ref pReturn); 
+            return Api.Post<modMOVIMENTO>("XGP/PostSaida", pMOV, ref pReturn);
+        }
+
+        public void PostSync(MOD.CES.Public.modSync pSync, ref PostReturn pReturn)
+        {
+            Api.PostAsync("Sync", pSync, ref pReturn);
         }
 
 
